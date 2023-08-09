@@ -4,30 +4,48 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 
-    public Vector3 startPoint = new Vector3(0.0f,0.0f,0.0f);
+    //The field to hold the main camera
     public Camera cam;
+
+    //How long the drawing should last for
+    public float persistence = 0.0f;
+
+    //The list to hold the points of each shape
+    public List<Vector3> newShape = new List<Vector3>();
+
     // Start is called before the first frame update
     void Start()
     {
         
     }
 
-//public static void DrawLine(Vector3 start, Vector3 end, Color color = Color.white, float duration = 0.0f, bool depthTest = true);
-//(0.13, 1.05, 0.30) (0.23, 1.04, 0.30)
 
     // Update is called once per frame
     void Update() {
-
+        /**When the left mouse button is pressed
+        - Increase the persistence
+        - Calculate the position of the mouse in the world
+        - Add it to the current list of shape points**/
         if (Input.GetButtonDown("Fire1")) {
+            persistence += 1.0f;
             Vector3 mousePos = Input.mousePosition;
-            Vector3 endPoint = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, (cam.nearClipPlane+5.0f)));
-            Debug.DrawLine(new Vector3(-2.73f, 0.93f, 3.56f), new Vector3(0.23f, 0.93f, 3.56f), Color.green, 20.0f);
-            Debug.DrawLine(startPoint,endPoint, Color.red, 2.5f, false);
-            Debug.Log(mousePos.x);
-            Debug.Log(mousePos.y);
-            Debug.Log(startPoint+" "+endPoint);
-            startPoint = endPoint;
+            Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, (cam.nearClipPlane+5.0f)));
+            newShape.Add(worldPoint);
         }
+        /**When the right mouse button is pressed
+        - Draw each line of the shape
+        - Clear the list to signify the end of a shape
+        - Reset the persistence**/
+        if (Input.GetButtonDown("Fire2")) {
+            for (var i = 0; i < newShape.Count; i++) {
+                if (i != 0) {
+                    Debug.DrawLine(newShape[i-1],newShape[i], Color.red, persistence, false);
+                }
+            }
+            newShape.Clear();
+            persistence = 0.0f;
+        }
+
         
         
     }
