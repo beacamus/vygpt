@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour {
     public Camera cam;
     Vector3 previousFrame;
     public float persistence = 10.0f;
+    public float iterations = 0.0f;
 
 
      // Start is called before the first frame update
@@ -24,13 +25,19 @@ public class GameController : MonoBehaviour {
             Vector3 mousePos = Input.mousePosition;
             Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, (cam.nearClipPlane+5.0f)));
             previousFrame = worldPoint;
+            iterations = 100.0f;
         }
 
         if (Input.GetMouseButton(0)) {
+            iterations += 1.0f;
             Vector3 mousePos = Input.mousePosition;
             Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, (cam.nearClipPlane+5.0f)));
-            Debug.DrawLine(previousFrame,worldPoint, Color.red, persistence, false);
+            Debug.DrawLine(previousFrame,worldPoint, Color.red, (iterations/100.0f), false);
             previousFrame = worldPoint;
+        }
+
+        if (Input.GetMouseButtonUp(0)) {
+            iterations = 0.0f;
         }
 
         /**if (Input.GetAxis("Mouse X") < 0) {
