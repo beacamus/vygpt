@@ -45,7 +45,7 @@ public class GameController : MonoBehaviour {
             for (var i = 0; i < newShape.Count; i++) {
                 if (i != 0) {
                     //Debug.Log(newShape[i-1] + " " + newShape[i]);
-                    Debug.DrawLine(newShape[i-1],newShape[i], Color.green, iterations/100.0f, false);
+                    Debug.DrawLine(newShape[i-1],newShape[i], new Color(0.2f,0.6f,0.1f), iterations/100.0f, false);
                 }
             }
             detectLine();
@@ -55,54 +55,34 @@ public class GameController : MonoBehaviour {
 
     }
 
-
     void detectLine() {
-        float biggesty = 0.0f;
-        float smallesty = 0.0f;
-        for (var i = 0; i < newShape.Count; i++) {
-            if (i == 0) {
-                biggesty = newShape[i].y;
-                smallesty = newShape[i].y;
-            } else {
-                if (newShape[i].y > biggesty) {
-                    biggesty = newShape[i].y;
-                } else if (newShape[i].y < smallesty) {
-                    smallesty = newShape[i].y;
-                }
-            }
-        }
-
-
-        float biggestx = 0.0f;
-        float smallestx = 0.0f;
-        for (var i = 0; i < newShape.Count; i++) {
-            if (i == 0) {
-                biggestx = newShape[i].x;
-                smallestx = newShape[i].x;
-            } else {
-                if (newShape[i].x > biggestx) {
-                    biggestx = newShape[i].x;
-                } else if (newShape[i].x < smallestx) {
-                    smallestx = newShape[i].x;
-                }
-            }
-        }
-
-        //Debug.Log("BIGGEST X " + biggestx);
-        //Debug.Log("BIGGEST Y " + biggesty);
-        //Debug.Log("SMALLEST X " + smallestx);
-        //Debug.Log("SMALLEST y " + smallesty);
-
-        float ydiff = biggesty - smallesty;
-        float xdiff = biggestx - smallestx;
-
-        //Debug.Log("DIFFERENCE IN Y VALUES " + ydiff);
-        //Debug.Log("DIFFERENCE IN X VALUES " + xdiff);
-
-        if ((ydiff < 0.2) || (xdiff < 0.2)) {
-            Debug.Log("LINEEE");
-        }
-        
+     Vector3 startPt = newShape[0];
+     Vector3 dir = newShape[newShape.Count - 1] - newShape[0];
+     float len = dir.magnitude;
+     Vector3 perp = Vector3.Cross(dir,Vector3.forward).normalized;
+     float permit = len * 0.025f;
+     matchLine(startPt,perp,permit);
     }
 
+    void matchLine(Vector3 pt0,Vector3 dir,float permit) {
+        float max = float.MinValue;
+        float min = float.MaxValue;
+	
+        for (int i = 0; i < newShape.Count; i++) {
+	    float dst = Vector3.Dot(dir,newShape[i] - pt0);
+            if (dst > max) {
+                max = dst;
+            } else if (dst < min) {
+                min = dst;
+            }
+        }
+
+        float diff = Mathf.Abs(max - min);
+
+        //Debug.Log("DIFFERENCE IN VALUES " + ydiff);
+
+        if (diff < permit) {
+            Debug.Log($"LINEEE in direction {dir} permitted {permit} deviation {diff}");
+        }
+    }
 }
