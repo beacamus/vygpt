@@ -88,34 +88,39 @@ public class GameController : MonoBehaviour {
     }
 
     void detectCircle() {
-        float sumx = 0.0f;
-        float sumy = 0.0f;
+	// Get the sum of the vectors and divide by the average to get the origin
+	Vector3 sum = Vector3.zero;
         for (int i = 0; i < newShape.Count; i++) {
-            sumx += newShape[i].x;
-            sumy += newShape[i].y;
+            sum += newShape[i];
         }
-        sumx = sumx / newShape.Count;
-        sumy = sumy / newShape.Count;
-        Vector3 origin = new Vector3(sumx, sumy, (cam.nearClipPlane+5.0f));
-        Debug.DrawLine(origin, newShape[0], new Color(0.2f,0.1f,0.6f), iterations/100.0f, false);
-        Vector3 radius = newShape[0] - origin;
-        radius.z = 0.0f;
-        float radius_dst = radius.magnitude;
+        Vector3 origin = sum / newShape.Count;
+
+//	Tracing to display the radius
+//      Debug.DrawLine(origin, newShape[0], new Color(0.2f,0.1f,0.6f), iterations/100.0f, false);
+
+	// Calculate the average radius length
+	float totalRadius = 0;
+        for (int i = 0; i < newShape.Count; i++) {
+            totalRadius += (newShape[i] - origin).magnitude;
+        }
+        float radius = totalRadius / newShape.Count;
+
+	// If the distance between the origin and the point on the shape is greater than the permitted deviated value - it is not a circle
         bool circle = true;
-        int penalities = 0;
-        float permit = radius_dst * 0.3f;
+        int penalties = 0;
+        float permit = radius * 0.3f;
         for (int i = 0; i < newShape.Count; i++) {
             float temp_dst = (newShape[i] - origin).magnitude;
-            float diff = radius_dst - temp_dst;
+            float diff = radius - temp_dst;
             if (Mathf.Abs(diff) > permit) {
-                penalities += 1;
+                penalties += 1;
                 circle = false;
             }
         }
         if (circle) {
             Debug.Log("CIRCLE");
         } else {
-            Debug.Log("PENALITIES " + penalities + "/" + newShape.Count);
+            Debug.Log("PENALTIES " + penalties + "/" + newShape.Count);
         }
     }
 }
